@@ -1,0 +1,36 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ devp ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+      with:
+          persist-credentials: false
+
+    - name: Install and Build
+      run: |
+        npm install
+        npm run build:prod
+
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@3.7.1
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }} # 根据存储库的权限，您可能需要为操作提供GitHub个人访问令牌，而不是提供的GitHub令牌才能进行部署。
+        BRANCH: gh-pages # 这是您希望部署到的分支，例如gh-pages或docs。
+        FOLDER: dist # 存储库中要部署的文件夹
+        CLEAN: true # 自动从deploy分支中删除已删除的文件
